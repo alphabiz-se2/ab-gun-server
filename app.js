@@ -19,11 +19,11 @@ const gun = Gun({
   web: server,
   rfs: false,
   // file: store_directory,
-  // s3: {
-  //   key: process.env.AWS_ACCESS_KEY_ID, // AWS Access Key
-  //   secret: process.env.AWS_SECRET_ACCESS_KEY, // AWS Secret Token
-  //   bucket: process.env.AWS_S3_BUCKET // The bucket you want to save into
-  // }
+  s3: {
+    key: process.env.AWS_ACCESS_KEY_ID, // AWS Access Key
+    secret: process.env.AWS_SECRET_ACCESS_KEY, // AWS Secret Token
+    bucket: process.env.AWS_S3_BUCKET // The bucket you want to save into
+  }
 });
 global.Gun = Gun; /// make global to `node --inspect` - debug only
 global.gun = gun; /// make global to `node --inspect` - debug only
