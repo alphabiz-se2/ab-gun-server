@@ -1,6 +1,10 @@
 import express from 'express'
-import Gun from 'gun'
 import path from "path";
+import Gun from 'gun'
+// import 'gun/lib/yson';
+// import 'gun/sea';
+// import 'gun/lib/axe';
+// import 'gun/lib/webrtc';
 
 console.log('=============================================================================')
 console.log('============================== start ========================================')
@@ -22,12 +26,23 @@ const server = app.listen(port);
 const gun = Gun({
   web: server,
   rfs: false,
+  localStorage: false,
+  radisk: false,
+  max: 1e7,
+  // peers: [
+  //   'https://gun-manhattan.herokuapp.com/gun',
+  //   // 'http://localhost:8765/gun',
+  //   // 'https://mg-gun-manhattan.herokuapp.com/gun'
+  // ],
   // file: store_directory,
-  s3: {
-    key: process.env.AWS_S3_ACCESS_KEY_ID, // AWS Access Key
-    secret: process.env.AWS_S3_SECRET_ACCESS_KEY, // AWS Secret Token
-    bucket: process.env.AWS_S3_BUCKET // The bucket you want to save into
-  }
+
+  ...((!['AWS_S3_ACCESS_KEY_ID', 'AWS_S3_SECRET_ACCESS_KEY', 'AWS_S3_BUCKET'].some(x => !process.env[x])) ? {
+    s3: {
+      key: process.env.AWS_S3_ACCESS_KEY_ID, // AWS Access Key
+      secret: process.env.AWS_S3_SECRET_ACCESS_KEY, // AWS Secret Token
+      bucket: process.env.AWS_S3_BUCKET // The bucket you want to save into
+    }
+  } : {}),
 });
 global.Gun = Gun; /// make global to `node --inspect` - debug only
 global.gun = gun; /// make global to `node --inspect` - debug only
