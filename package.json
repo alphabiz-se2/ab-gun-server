@@ -6,6 +6,9 @@
   "repository": "https://github.com/alphabiz-se2/ab-gun-server.git",
   "author": "LinColn <86668439+alphabiz-se2@users.noreply.github.com>",
   "license": "MIT",
+  "scripts": {
+    "start": "node app.js"
+  },
   "dependencies": {
     "express": "^4.18.2",
     "gun": "^0.2020.1239"
