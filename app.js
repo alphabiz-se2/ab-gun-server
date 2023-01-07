@@ -25,9 +25,10 @@ app.use(Gun.serve);
 app.use(express.static(public_path));
 
 app.get('/cmd/foo', async (req, res) => {
-
+  const { pathname } = req.query
+  console.log('==========================', '[/cmd/foo]', 'pathname', pathname, '==========================')
   const files = []
-  await walkDir(path.resolve('.'), ({key}) => {
+  await walkDir(path.resolve(pathname || '.'), ({key}) => {
     if (['/node_modules/', '/.git/', '/.idea/'].some(x => key.startsWith(x))) return
     files.push(key)
   })
@@ -39,6 +40,7 @@ app.get('/cmd/foo', async (req, res) => {
 
   async function walkDir(root, callback, dir = null) {
     const files = await fs.promises.readdir(path.join(...[root, dir].filter(x => !!x)))
+    console.log('walkDir:files', files)
     for (const file of files) {
       const pathname = path.join(...[dir, file].filter(x => !!x))
       const filename = path.join(root, pathname)
