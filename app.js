@@ -13,6 +13,7 @@ console.log('===================================================================
 const port = normalizePort(process.env.OPENSHIFT_NODEJS_PORT || process.env.VCAP_APP_PORT || process.env.PORT || process.argv[2] || 8765);
 const public_path = path.join(path.resolve('.'), 'public')
 
+console.log('- date:', new Date().toISOString())
 console.log('- port:', port)
 console.log('- AWS_S3_BUCKET:', process.env.AWS_S3_BUCKET)
 console.log('- AWS_S3_ACCESS_KEY_ID:', process.env.AWS_S3_ACCESS_KEY_ID)
@@ -31,18 +32,16 @@ const gun = Gun({
   max: 1e7,
   // peers: [
   //   'https://gun-manhattan.herokuapp.com/gun',
-  //   // 'http://localhost:8765/gun',
-  //   // 'https://mg-gun-manhattan.herokuapp.com/gun'
   // ],
-  // file: store_directory,
+  // file: 'data',
 
-  ...((!['AWS_S3_ACCESS_KEY_ID', 'AWS_S3_SECRET_ACCESS_KEY', 'AWS_S3_BUCKET'].some(x => !process.env[x])) ? {
-    s3: {
-      key: process.env.AWS_S3_ACCESS_KEY_ID, // AWS Access Key
-      secret: process.env.AWS_S3_SECRET_ACCESS_KEY, // AWS Secret Token
-      bucket: process.env.AWS_S3_BUCKET // The bucket you want to save into
-    }
-  } : {}),
+  // ...((!['AWS_S3_ACCESS_KEY_ID', 'AWS_S3_SECRET_ACCESS_KEY', 'AWS_S3_BUCKET'].some(x => !process.env[x])) ? {
+  //   s3: {
+  //     key: process.env.AWS_S3_ACCESS_KEY_ID, // AWS Access Key
+  //     secret: process.env.AWS_S3_SECRET_ACCESS_KEY, // AWS Secret Token
+  //     bucket: process.env.AWS_S3_BUCKET // The bucket you want to save into
+  //   }
+  // } : {}),
 });
 global.Gun = Gun; /// make global to `node --inspect` - debug only
 global.gun = gun; /// make global to `node --inspect` - debug only
