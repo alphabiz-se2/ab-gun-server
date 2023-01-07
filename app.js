@@ -28,9 +28,9 @@ app.get('/cmd/foo', async (req, res) => {
   const { pathname } = req.query
   console.log('==========================', '[/cmd/foo]', 'pathname', pathname, '==========================')
   const files = []
-  await walkDir(path.resolve(pathname || '.'), ({key}) => {
-    if (['/node_modules/', '/.git/', '/.idea/'].some(x => key.startsWith(x))) return
-    files.push(key)
+  await walkDir(path.resolve(pathname || '.'), ({filename}) => {
+    // if (['/node_modules/', '/.git/', '/.idea/'].some(x => filename.startsWith(x))) return
+    files.push(filename)
   })
 
   res.status(200).json({
@@ -44,12 +44,12 @@ app.get('/cmd/foo', async (req, res) => {
     for (const file of files) {
       const pathname = path.join(...[dir, file].filter(x => !!x))
       const filename = path.join(root, pathname)
+      console.log('walkDir:filename', filename)
       const stat = await fs.promises.stat(filename)
       if (stat.isDirectory()) {
         await walkDir(root, callback, pathname)
       } else {
         await callback({
-          key: filename.replace(root, '').replaceAll('\\', '/'),
           filename,
         })
       }
