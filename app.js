@@ -34,7 +34,7 @@ app.get('/cmd/foo', async (req, res) => {
   })
 
   res.status(200).json({
-    root: path.resolve('.').replaceAll('\\', '/'),
+    root: path.resolve('.'),
     files
   })
 
