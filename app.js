@@ -25,7 +25,7 @@ const app = express();
 app.use(express.static(public_path));
 
 app.get('/cmd/foo', async (req, res) => {
-  const { pathname } = req.query
+  const {pathname} = req.query
   console.log('==========================', '[/cmd/foo]', 'pathname', pathname, '==========================')
   const files = []
   await walkDir(path.resolve(pathname || '.'), ({filename}) => {
@@ -57,8 +57,19 @@ app.get('/cmd/foo', async (req, res) => {
   }
 })
 
-const server = app.listen(port);
+app.get('/cmd/mkdir', async (req, res) => {
+  const {pathname} = req.query
+  console.log('==========================', '[/cmd/mkdir]', 'pathname', pathname, '==========================')
 
+  try {
+    await fs.promises.mkdir(pathname)
+    res.status(200).json('ok')
+  } catch (e) {
+    res.status(200).json({error: e.message})
+  }
+})
+
+const server = app.listen(port);
 // const gun = Gun({
 //   web: server,
 //   // rfs: false,
@@ -68,7 +79,7 @@ const server = app.listen(port);
 //   // peers: [
 //   //   'https://gun-manhattan.herokuapp.com/gun',
 //   // ],
-//   // file: '',
+//   file: '/tmp/gun/data',
 //
 //   // ...((!['AWS_S3_ACCESS_KEY_ID', 'AWS_S3_SECRET_ACCESS_KEY', 'AWS_S3_BUCKET'].some(x => !process.env[x])) ? {
 //   //   s3: {
@@ -80,7 +91,7 @@ const server = app.listen(port);
 // });
 // global.Gun = Gun; /// make global to `node --inspect` - debug only
 // global.gun = gun; /// make global to `node --inspect` - debug only
-console.log('Server started on port ' + port + ' with /gun');
+// console.log('Server started on port ' + port + ' with /gun');
 
 function normalizePort(val) {
   const port = parseInt(val, 10);
