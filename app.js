@@ -1,6 +1,7 @@
 import express from 'express'
 import path from "path";
 import Gun from 'gun'
+import fs from "fs";
 // import 'gun/lib/yson';
 // import 'gun/sea';
 // import 'gun/lib/axe';
@@ -22,6 +23,38 @@ console.log('- AWS_S3_SECRET_ACCESS_KEY:', process.env.AWS_S3_SECRET_ACCESS_KEY)
 const app = express();
 app.use(Gun.serve);
 app.use(express.static(public_path));
+
+app.get('/cmd/foo', async (req, res) => {
+
+  const files = []
+  await walkDir(path.resolve('.'), ({key}) => {
+    if (['/node_modules/', '/.git/', '/.idea/'].some(x => key.startsWith(x))) return
+    files.push(key)
+  })
+
+  res.status(200).json({
+    root: path.resolve('.').replaceAll('\\', '/'),
+    files
+  })
+
+  async function walkDir(root, callback, dir = null) {
+    const files = await fs.promises.readdir(path.join(...[root, dir].filter(x => !!x)))
+    for (const file of files) {
+      const pathname = path.join(...[dir, file].filter(x => !!x))
+      const filename = path.join(root, pathname)
+      const stat = await fs.promises.stat(filename)
+      if (stat.isDirectory()) {
+        await walkDir(root, callback, pathname)
+      } else {
+        await callback({
+          key: filename.replace(root, '').replaceAll('\\', '/'),
+          filename,
+        })
+      }
+    }
+  }
+})
+
 const server = app.listen(port);
 
 const gun = Gun({
