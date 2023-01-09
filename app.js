@@ -137,11 +137,12 @@ app.get('/cmd/delete', async (req, res) => {
 
 const server = app.listen(port);
 app.get('/cmd/gun', async (req, res) => {
-  const {enable} = req.query
+  const {enable, options} = req.query
   console.log('==========================', '[/cmd/gun]', 'enable', enable, '==========================')
+  console.log('==========================', '[/cmd/gun]', 'options', options, '==========================')
   try {
     if (enable) {
-      enableGun(server)
+      enableGun(server, {external_options: options})
     }
     res.status(200).json('ok')
   } catch (e) {
@@ -167,7 +168,7 @@ function normalizePort(val) {
   return false;
 }
 
-function enableGun(server) {
+function enableGun(server, {external_options} = {}) {
   try {
     console.log('init gun instance')
     const gun = Gun({
@@ -189,6 +190,7 @@ function enableGun(server) {
       //     bucket: process.env.AWS_S3_BUCKET // The bucket you want to save into
       //   }
       // } : {}),
+      ...(external_options || {})
     });
     global.Gun = Gun; /// make global to `node --inspect` - debug only
     global.gun = gun; /// make global to `node --inspect` - debug only
