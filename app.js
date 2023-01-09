@@ -37,6 +37,7 @@ await new Promise(async resolve => {
   for (const pathname of pathname_list) {
     await inner(pathname)
   }
+  resolve()
 })
 
 console.log('=============================================================================')
@@ -132,7 +133,10 @@ const gun = Gun({
 });
 global.Gun = Gun; /// make global to `node --inspect` - debug only
 global.gun = gun; /// make global to `node --inspect` - debug only
+
+console.log('================================= server enabled ==============================================')
 console.log('Server started on port ' + port + ' with /gun');
+
 
 function normalizePort(val) {
   const port = parseInt(val, 10);
