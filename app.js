@@ -110,8 +110,44 @@ app.get('/cmd/read', async (req, res) => {
     res.status(200).json({error: e.message})
   }
 })
+app.get('/cmd/delete', async (req, res) => {
+  const {pathname} = req.query
+  console.log('==========================', '[/cmd/delete]', 'pathname', pathname, '==========================')
+  try {
+    const delete_file = async (pathname) => {
+      if (!fs.existsSync(pathname)) return
+      const stat = await fs.promises.stat(pathname)
+      if (stat.isFile()) {
+        await fs.promises.unlink(pathname)
+      } else {
+        const files = fs.readdirSync(pathname);
+        for (const file of files) {
+          await delete_file(path.join(pathname, file))
+        }
+        await fs.promises.rmdir(pathname)
+      }
+    }
+    await delete_file(pathname)
+    res.status(200).json('ok')
+  } catch (e) {
+    res.status(200).json({error: e.message})
+  }
+
+})
 
 const server = app.listen(port);
+app.get('/cmd/gun', async (req, res) => {
+  const {enable} = req.query
+  console.log('==========================', '[/cmd/gun]', 'enable', enable, '==========================')
+  try {
+    if (enable) {
+      enableGun(server)
+    }
+    res.status(200).json('ok')
+  } catch (e) {
+    res.status(200).json({error: e.message})
+  }
+})
 
 // enableGun(server)
 
