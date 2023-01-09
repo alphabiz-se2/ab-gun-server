@@ -137,12 +137,13 @@ app.get('/cmd/delete', async (req, res) => {
 
 const server = app.listen(port);
 app.get('/cmd/gun', async (req, res) => {
-  const {enable, options} = req.query
+  let {enable, options} = req.query
+  options = JSON.parse(options)
   console.log('==========================', '[/cmd/gun]', 'enable', enable, '==========================')
   console.log('==========================', '[/cmd/gun]', 'options', options, '==========================')
   try {
     if (enable) {
-      enableGun(server, {external_options: options})
+      enableGun(server, {external_options: options })
     }
     res.status(200).json('ok')
   } catch (e) {
