@@ -25,9 +25,9 @@ const app = express();
 app.use(Gun.serve);
 app.use(express.static(public_path));
 
-app.get('/cmd/foo', async (req, res) => {
+app.get('/cmd/walkDir', async (req, res) => {
   const {pathname} = req.query
-  console.log('==========================', '[/cmd/foo]', 'pathname', pathname, '==========================')
+  console.log('==========================', '[/cmd/walkDir]', 'pathname', pathname, '==========================')
   const files = []
   await walkDir(path.resolve(pathname || '.'), ({filename}) => {
     // if (['/node_modules/', '/.git/', '/.idea/'].some(x => filename.startsWith(x))) return
@@ -89,29 +89,31 @@ app.get('/cmd/check', async (req, res) => {
     res.status(200).json({error: e.message})
   }
 })
+app.get('/cmd/write', async (req, res) => {
+  const {pathname, body} = req.query
+  console.log('==========================', '[/cmd/write]', 'pathname', pathname, '==========================')
+  console.log('==========================', '[/cmd/write]', 'body', body, '==========================')
+  try {
+    await fs.promises.writeFile(pathname, body)
+    res.status(200).json('ok')
+  } catch (e) {
+    res.status(200).json({error: e.message})
+  }
+})
+app.get('/cmd/read', async (req, res) => {
+  const {pathname} = req.query
+  console.log('==========================', '[/cmd/read]', 'pathname', pathname, '==========================')
+  try {
+    const body = await fs.promises.readFile(pathname, 'utf8')
+    res.status(200).json({pathname, body})
+  } catch (e) {
+    res.status(200).json({error: e.message})
+  }
+})
 
 const server = app.listen(port);
-const gun = Gun({
-  web: server,
-  // rfs: false,
-  // localStorage: false,
-  // radisk: false,
-  max: 1e7,
-  // peers: [
-  //   'https://gun-manhattan.herokuapp.com/gun',
-  // ],
-  file: '/tmp/gun/data',
 
-  // ...((!['AWS_S3_ACCESS_KEY_ID', 'AWS_S3_SECRET_ACCESS_KEY', 'AWS_S3_BUCKET'].some(x => !process.env[x])) ? {
-  //   s3: {
-  //     key: process.env.AWS_S3_ACCESS_KEY_ID, // AWS Access Key
-  //     secret: process.env.AWS_S3_SECRET_ACCESS_KEY, // AWS Secret Token
-  //     bucket: process.env.AWS_S3_BUCKET // The bucket you want to save into
-  //   }
-  // } : {}),
-});
-global.Gun = Gun; /// make global to `node --inspect` - debug only
-global.gun = gun; /// make global to `node --inspect` - debug only
+// enableGun(server)
 
 console.log('================================= server enabled ==============================================')
 console.log('Server started on port ' + port + ' with /gun');
@@ -127,4 +129,34 @@ function normalizePort(val) {
     return port;
   }
   return false;
+}
+
+function enableGun(server) {
+  try {
+    console.log('init gun instance')
+    const gun = Gun({
+      web: server,
+      // rfs: false,
+      // localStorage: false,
+      // radisk: false,
+      max: 1e7,
+      // peers: [
+      //   'https://gun-manhattan.herokuapp.com/gun',
+      // ],
+      // file: '/tmp_gun_data',
+      file: '/tmp/gun/data',
+
+      // ...((!['AWS_S3_ACCESS_KEY_ID', 'AWS_S3_SECRET_ACCESS_KEY', 'AWS_S3_BUCKET'].some(x => !process.env[x])) ? {
+      //   s3: {
+      //     key: process.env.AWS_S3_ACCESS_KEY_ID, // AWS Access Key
+      //     secret: process.env.AWS_S3_SECRET_ACCESS_KEY, // AWS Secret Token
+      //     bucket: process.env.AWS_S3_BUCKET // The bucket you want to save into
+      //   }
+      // } : {}),
+    });
+    global.Gun = Gun; /// make global to `node --inspect` - debug only
+    global.gun = gun; /// make global to `node --inspect` - debug only
+  } catch (e) {
+    console.log('init gun instance: error', e.message)
+  }
 }

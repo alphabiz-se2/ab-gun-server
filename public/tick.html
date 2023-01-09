@@ -10,6 +10,9 @@
   <span style="margin-right: 8px">server.6.to/tick</span>
   <span id="view"></span>
 </div>
+<div>
+  <button id="btn">start</button>
+</div>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
 <script>
@@ -23,16 +26,29 @@
   console.log('servers', servers)
   gun = GUN({
     peers: [
-      'https://gun-manhattan.herokuapp.com/gun',
+      // 'https://gun-manhattan.herokuapp.com/gun',
       ...servers,
     ]
   });
 
   // main
   tick = gun.get('server.6.to/demo').get('tick');
-  setInterval(() => {
-    tick.put(new Date().getTime())
-  }, 3_000)
+
+  let interval = null
+  btn.addEventListener('click', () => {
+    console.log('click')
+    if (interval === null) {
+      interval = setInterval(() => {
+        tick.put(new Date().getTime())
+      }, 1_000)
+      btn.innerText = 'pause'
+    } else {
+      clearInterval(interval)
+      interval = null
+      btn.innerText = 'resume'
+    }
+  })
+
   tick.on((data) => {
     console.log('server.6.to/tick:', data)
     view.innerText = data
