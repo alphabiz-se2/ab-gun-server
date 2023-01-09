@@ -21,30 +21,6 @@ console.log('- AWS_S3_ACCESS_KEY_ID:', process.env.AWS_S3_ACCESS_KEY_ID)
 console.log('- AWS_S3_SECRET_ACCESS_KEY:', process.env.AWS_S3_SECRET_ACCESS_KEY)
 
 
-const check_path = async () => {
-  console.log('================================ mkdir ======================================')
-  const inner = async pathname => {
-    let exists = fs.existsSync(pathname)
-    if (exists) {
-      console.log('mkdir:exists', pathname)
-      console.log(`mkdir:${pathname}`, (await fs.promises.stat(pathname)).isDirectory())
-    } else {
-      console.log('mkdir:no_exists', pathname)
-      await fs.promises.mkdir(pathname)
-    }
-  }
-  const pathname_list = ['/tmp', '/tmp/gun', '/tmp/gun/data']
-  for (const pathname of pathname_list) {
-    await inner(pathname)
-  }
-}
-check_path().catch(e => {
-  console.log('check_path_error:', e.message)
-}).finally(()=>{
-  console.log('=============================================================================')
-})
-
-
 const app = express();
 app.use(Gun.serve);
 app.use(express.static(public_path));
