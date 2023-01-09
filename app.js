@@ -20,9 +20,9 @@ console.log('- AWS_S3_BUCKET:', process.env.AWS_S3_BUCKET)
 console.log('- AWS_S3_ACCESS_KEY_ID:', process.env.AWS_S3_ACCESS_KEY_ID)
 console.log('- AWS_S3_SECRET_ACCESS_KEY:', process.env.AWS_S3_SECRET_ACCESS_KEY)
 
-console.log('================================ mkdir ======================================')
 
 const check_path = async () => {
+  console.log('================================ mkdir ======================================')
   const inner = async pathname => {
     let exists = fs.existsSync(pathname)
     if (exists) {
@@ -38,11 +38,12 @@ const check_path = async () => {
     await inner(pathname)
   }
 }
-await check_path().catch(e => {
+check_path().catch(e => {
   console.log('check_path_error:', e.message)
+}).finally(()=>{
+  console.log('=============================================================================')
 })
 
-console.log('=============================================================================')
 
 const app = express();
 app.use(Gun.serve);
@@ -138,7 +139,6 @@ global.gun = gun; /// make global to `node --inspect` - debug only
 
 console.log('================================= server enabled ==============================================')
 console.log('Server started on port ' + port + ' with /gun');
-
 
 function normalizePort(val) {
   const port = parseInt(val, 10);
