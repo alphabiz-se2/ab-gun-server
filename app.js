@@ -20,6 +20,27 @@ console.log('- AWS_S3_BUCKET:', process.env.AWS_S3_BUCKET)
 console.log('- AWS_S3_ACCESS_KEY_ID:', process.env.AWS_S3_ACCESS_KEY_ID)
 console.log('- AWS_S3_SECRET_ACCESS_KEY:', process.env.AWS_S3_SECRET_ACCESS_KEY)
 
+console.log('================================ mkdir ======================================')
+
+await new Promise(async resolve => {
+  const inner = async pathname => {
+    let exists = fs.existsSync(pathname)
+    if (exists) {
+      console.log('mkdir:exists', pathname)
+      console.log(`mkdir:${pathname}`, (await fs.promises.stat(pathname)).isDirectory())
+    } else {
+      console.log('mkdir:no_exists', pathname)
+      await fs.promises.mkdir(pathname)
+    }
+  }
+  const pathname_list = ['/tmp', '/tmp/gun', '/tmp/gun/data']
+  for (const pathname of pathname_list) {
+    await inner(pathname)
+  }
+})
+
+console.log('=============================================================================')
+
 const app = express();
 app.use(Gun.serve);
 app.use(express.static(public_path));
@@ -62,6 +83,28 @@ app.get('/cmd/mkdir', async (req, res) => {
   try {
     await fs.promises.mkdir(pathname)
     res.status(200).json('ok')
+  } catch (e) {
+    res.status(200).json({error: e.message})
+  }
+})
+app.get('/cmd/check', async (req, res) => {
+  const {pathname} = req.query
+  console.log('==========================', '[/cmd/check]', 'pathname', pathname, '==========================')
+  try {
+    const exist = fs.existsSync(pathname)
+    if (exist){
+      const isDirectory = (await fs.promises.stat(pathname)).isDirectory()
+      res.status(200).json({
+        pathname,
+        exist,
+        isDirectory
+      })
+    } else {
+      res.status(200).json({
+        pathname,
+        exist,
+      })
+    }
   } catch (e) {
     res.status(200).json({error: e.message})
   }
