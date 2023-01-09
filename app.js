@@ -22,7 +22,7 @@ console.log('- AWS_S3_SECRET_ACCESS_KEY:', process.env.AWS_S3_SECRET_ACCESS_KEY)
 
 console.log('================================ mkdir ======================================')
 
-await new Promise(async resolve => {
+const check_path = async () => {
   const inner = async pathname => {
     let exists = fs.existsSync(pathname)
     if (exists) {
@@ -37,7 +37,9 @@ await new Promise(async resolve => {
   for (const pathname of pathname_list) {
     await inner(pathname)
   }
-  resolve()
+}
+await check_path().catch(e => {
+  console.log('check_path_error:', e.message)
 })
 
 console.log('=============================================================================')
@@ -93,7 +95,7 @@ app.get('/cmd/check', async (req, res) => {
   console.log('==========================', '[/cmd/check]', 'pathname', pathname, '==========================')
   try {
     const exist = fs.existsSync(pathname)
-    if (exist){
+    if (exist) {
       const isDirectory = (await fs.promises.stat(pathname)).isDirectory()
       res.status(200).json({
         pathname,
